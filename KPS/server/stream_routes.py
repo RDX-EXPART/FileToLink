@@ -113,10 +113,20 @@ def parse_range_header(range_header: str, file_size: int) -> tuple[int, int]:
     return start, end
 
 
-@routes.get("/", allow_head=True)
+# @routes.get("/", allow_head=True)
+# async def root_redirect(request):
+#     raise web.HTTPFound("https://telegram.me/KPSBots")
 
-async def root_redirect(request):
-    raise web.HTTPFound("https://telegram.me/KPSBots")
+
+@routes.get("/", allow_head=True)
+async def root_route_handler(request):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    html_file = os.path.join(current_dir, "landing.html")
+
+    with open(html_file, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    return web.Response(text=html, content_type="text/html")
 
 
 @routes.get("/status", allow_head=True)
