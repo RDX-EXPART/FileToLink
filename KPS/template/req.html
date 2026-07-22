@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>RDX File Stream — {{ heading }}</title>
+  <meta name="description" content="Watch and download files instantly with RDX File Stream. Powered by RDX MOVIE HD.">
+  <meta property="og:title" content="RDX File Stream">
+  <meta property="og:description" content="Fast, secure and easy file streaming and downloading.">
+  <meta property="og:type" content="website">
+
+  <!-- Self-contained RDX favicon/logo -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2309090d'/%3E%3Cpath d='M20 25h38c15 0 24 8 24 20 0 9-5 15-13 18l15 17H64L51 65H39v15H20V25zm19 15v11h17c5 0 8-2 8-6s-3-5-8-5H39z' fill='%23ff2438'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#09090d">
+  <meta name="color-scheme" content="dark light">
+  <meta name="application-name" content="RDX File Stream">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/FileToLink/style.css">
+
+  <style>
+    :root {
+      --rdx-red: #ff2438;
+      --rdx-red-2: #b50017;
+      --rdx-bg: #08080c;
+      --rdx-card: rgba(18,18,26,.78);
+      --rdx-border: rgba(255,255,255,.10);
+    }
+    body {
+      font-family: Inter, sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,36,56,.16), transparent 32%),
+        radial-gradient(circle at 90% 85%, rgba(181,0,23,.13), transparent 35%),
+        var(--rdx-bg);
+    }
+    .bg-gradient {
+      background: linear-gradient(135deg, rgba(255,36,56,.10), transparent 42%, rgba(181,0,23,.08));
+    }
+    .container {
+      position: relative;
+      z-index: 2;
+    }
+    .header::before {
+      content: "RDX FILE STREAM";
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 7px 12px;
+      border: 1px solid rgba(255,36,56,.35);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,36,56,.12);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .16em;
+    }
+    .header::after {
+      content: "Fast • Secure • Unlimited Streaming";
+      display: block;
+      margin-top: 7px;
+      color: rgba(255,255,255,.60);
+      font-size: 13px;
+      letter-spacing: .03em;
+    }
+    #file-name {
+      background: linear-gradient(90deg, #fff, #ff7a87);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .player-container,
+    .controls-section {
+      border-color: var(--rdx-border) !important;
+      box-shadow: 0 22px 70px rgba(0,0,0,.38), 0 0 0 1px rgba(255,36,56,.04);
+    }
+    .action-button:hover,
+    .action-button:focus-visible {
+      border-color: rgba(255,36,56,.55) !important;
+      box-shadow: 0 10px 30px rgba(255,36,56,.16);
+    }
+    .plyr {
+      --plyr-color-main: var(--rdx-red);
+    }
+    footer {
+      position: relative;
+      z-index: 2;
+    }
+    footer p {
+      color: rgba(255,255,255,.62);
+    }
+    footer a, #rdx-text {
+      color: #ff4b5e !important;
+      font-weight: 700;
+    }
+    .rdx-telegram-float {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 16px;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff2438, #b50017);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 14px 40px rgba(255,36,56,.28);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .rdx-telegram-float:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 48px rgba(255,36,56,.38);
+    }
+    @media (max-width: 560px) {
+      .rdx-telegram-float span { display: none; }
+      .rdx-telegram-float { width: 48px; height: 48px; justify-content: center; padding: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <button class="theme-toggle button-base" aria-label="Toggle Light/Dark Mode" aria-pressed="false" title="Toggle Light/Dark Mode">
+    <i class="fas fa-moon" aria-hidden="true"></i>
+  </button>
+
+  <div class="background-animation" aria-hidden="true">
+    <div class="bg-gradient"></div>
+  </div>
+
+  <div class="container">
+    <header class="header">
+      <div class="file-info">
+        <h1 id="file-name">{{ file_name }}</h1>
+        <div class="file-meta" role="group" aria-label="File metadata"></div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="player-container" aria-label="Video Player">
+        <video id="player" playsinline preload="metadata" controlsList="nodownload" aria-label="Video player">
+          <source src="{{ src }}" type="video/mp4" />
+          <p>Your browser does not support the video tag. Please <a href="{{ src }}" download>download the video</a> instead.</p>
+        </video>
+      </section>
+
+      <nav class="controls-section" aria-label="File options">
+        <div class="dropdown-container" id="stream-dropdown-container">
+          <button type="button" class="action-button button-base secondary-button stream-btn"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="stream-menu" id="stream-btn-label">
+            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+            <span>Stream</span>
+          </button>
+
+          <div class="dropdown-menu" id="stream-menu" aria-labelledby="stream-btn-label" role="menu">
+            <div class="stream-menu-header">
+              <h3>Open with external player</h3>
+              <button type="button" aria-label="Close menu" class="stream-menu-close button-base">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="stream-menu-content">
+              <div class="stream-category">
+                <h4 class="category-heading"><i class="fas fa-mobile-screen-button"></i> Mobile Players</h4>
+                <div class="player-grid" role="group" aria-label="Mobile video players">
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="vlc">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/vlc.png" alt="VLC Mobile" width="32" height="32" class="player-icon">
+                    <span class="player-name">VLC Mobile</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="mxpro">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/mx.png" alt="MX Player Pro" width="32" height="32" class="player-icon">
+                    <span class="player-name">MX Pro</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="mx">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/mx.png" alt="MX Player" width="32" height="32" class="player-icon">
+                    <span class="player-name">MX Player</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="nplayer">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/nPlayer.webp" alt="nPlayer" width="32" height="32" class="player-icon">
+                    <span class="player-name">nPlayer</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="splayer">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/splayer.webp" alt="S Player" width="32" height="32" class="player-icon">
+                    <span class="player-name">S Player</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="km">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/km.webp" alt="KM Player" width="32" height="32" class="player-icon">
+                    <span class="player-name">KM Player</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="stream-category">
+                <h4 class="category-heading"><i class="fas fa-desktop"></i> Desktop Players</h4>
+                <div class="player-grid" role="group" aria-label="Desktop video players">
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="vlc-pc">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/vlc.png" alt="VLC Player" width="32" height="32" class="player-icon">
+                    <span class="player-name">VLC Player</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="potplayer">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/FileToLink/pot.png" alt="PotPlayer" width="32" height="32" class="player-icon">
+                    <span class="player-name">PotPlayer</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="mpc">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/FileToLink/classic.png" alt="MPC-HC" width="32" height="32" class="player-icon">
+                    <span class="player-name">MPC-HC</span>
+                  </button>
+                  <button type="button" class="player-card dropdown-item" role="menuitem" data-player-type="kmpc">
+                    <img src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/HydroStreamerBot/km.webp" alt="KM Player" width="32" height="32" class="player-icon">
+                    <span class="player-name">KM Player</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="action-button button-base secondary-button"
+                title="Download the video" aria-label="Download video file">
+          <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
+          <span>Download</span>
+        </button>
+
+        <button type="button" class="action-button button-base secondary-button"
+                title="Copy video link" aria-label="Copy video link to clipboard">
+          <i class="fas fa-copy" aria-hidden="true"></i>
+          <span>Copy Link</span>
+        </button>
+      </nav>
+    </main>
+  </div>
+
+  <footer>
+    <p>
+      <span id="rdx-text">⚡ RDX MOVIE HD</span>
+      © <span id="current-year"></span> |
+      <a href="https://t.me/rdxmovie_hd" target="_blank" rel="noopener noreferrer" aria-label="RDX Movie HD Telegram Channel">
+        <i class="fa-brands fa-telegram"></i> <span>Join Channel</span>
+      </a>
+    </p>
+  </footer>
+
+  <a class="rdx-telegram-float" href="https://t.me/rdxmovie_hd" target="_blank" rel="noopener noreferrer" aria-label="Join RDX Movie HD on Telegram">
+    <i class="fa-brands fa-telegram"></i>
+    <span>Join RDX MOVIE HD</span>
+  </a>
+
+  <div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true" aria-hidden="true">
+    <div class="toast-icon" aria-hidden="true"><i class="fas fa-info-circle"></i></div>
+    <div class="toast-message">Action completed.</div>
+  </div>
+
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/gh/fyaz05/Resources@main/FileToLink/script.js" defer></script>
+</body>
+</html>
